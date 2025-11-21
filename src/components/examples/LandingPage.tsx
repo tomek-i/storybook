@@ -48,7 +48,7 @@ export function LandingPage({
           <p className="text-xl text-muted-foreground max-w-2xl">{heroDescription}</p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              Get Started
+Hire SSW
             </Button>
             <Button size="lg" variant="outline">
               Learn More
