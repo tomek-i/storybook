@@ -33,7 +33,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="w-full min-w-lg max-w-2xl">
       <CardHeader className="space-y-1.5">
         <CardTitle>Login</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
