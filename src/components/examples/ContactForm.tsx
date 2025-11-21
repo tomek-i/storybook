@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ContactFormData {
   name: string;
@@ -18,19 +19,42 @@ interface ContactFormData {
 
 interface ContactFormProps {
   onSubmit?: (data: ContactFormData) => void;
+  disabled?: boolean;
+  isLoading?: boolean;
+  initialErrors?: Partial<Record<keyof ContactFormData, string>>;
+  defaultValues?: Partial<ContactFormData>;
 }
 
-export function ContactForm({ onSubmit }: ContactFormProps) {
+export function ContactForm({
+  onSubmit,
+  disabled = false,
+  isLoading = false,
+  initialErrors,
+  defaultValues,
+}: ContactFormProps) {
   const form = useForm<ContactFormData>({
     defaultValues: {
       name: "",
       email: "",
       subject: "",
       message: "",
+      ...defaultValues,
     },
   });
 
-  const handleSubmit = (data: ContactFormData) => {
+  // Set initial errors if provided
+  React.useEffect(() => {
+    if (initialErrors) {
+      Object.entries(initialErrors).forEach(([key, message]) => {
+        form.setError(key as keyof ContactFormData, {
+          type: "manual",
+          message: message as string,
+        });
+      });
+    }
+  }, [initialErrors, form]);
+
+  const handleSubmit = async (data: ContactFormData) => {
     onSubmit?.(data);
     console.log("Contact form data:", data);
   };
@@ -53,7 +77,7 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="John Doe" disabled={disabled} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -73,7 +97,7 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="john@example.com" {...field} />
+                      <Input type="email" placeholder="john@example.com" disabled={disabled} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -88,7 +112,7 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
                 <FormItem>
                   <FormLabel>Subject</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a subject" />
                       </SelectTrigger>
@@ -119,7 +143,12 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
                 <FormItem>
                   <FormLabel>Message</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Tell us what's on your mind..." className="min-h-[120px]" {...field} />
+                    <Textarea
+                      placeholder="Tell us what's on your mind..."
+                      className="min-h-[120px]"
+                      disabled={disabled}
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>Please provide as much detail as possible</FormDescription>
                   <FormMessage />
@@ -127,10 +156,13 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
               )}
             />
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => form.reset()}>
+              <Button type="button" variant="outline" onClick={() => form.reset()} disabled={disabled || isLoading}>
                 Reset
               </Button>
-              <Button type="submit">Send Message</Button>
+              <Button type="submit" disabled={disabled || isLoading}>
+                {isLoading && <Spinner className="mr-2" />}
+                {isLoading ? "Sending..." : "Send Message"}
+              </Button>
             </div>
           </form>
         </Form>
