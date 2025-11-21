@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "storybook": "storybook dev -p 6006",
+    "sb": "storybook dev -p 6006",
     "sb:publish": "npx chromatic --project-token=chpt_96056bf19398104",
     "build-storybook": "storybook build"
   },
