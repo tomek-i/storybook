@@ -1,30 +1,16 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ProfileSettingsData {
   name: string;
@@ -37,23 +23,46 @@ interface ProfileSettingsData {
 
 interface ProfileSettingsProps {
   onSubmit?: (data: ProfileSettingsData) => void;
+  disabled?: boolean;
+  isLoading?: boolean;
+  initialErrors?: Partial<Record<keyof ProfileSettingsData, string>>;
+  defaultValues?: Partial<ProfileSettingsData>;
 }
 
-export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
+export function ProfileSettings({
+  onSubmit,
+  disabled = false,
+  isLoading = false,
+  initialErrors,
+  defaultValues,
+}: ProfileSettingsProps) {
   const form = useForm<ProfileSettingsData>({
     defaultValues: {
-      name: 'John Doe',
-      email: 'john@example.com',
-      bio: 'Software developer passionate about building great products.',
-      theme: 'system',
+      name: "John Doe",
+      email: "john@example.com",
+      bio: "Software developer passionate about building great products.",
+      theme: "system",
       notifications: true,
       marketing: false,
+      ...defaultValues,
     },
   });
 
-  const handleSubmit = (data: ProfileSettingsData) => {
+  // Set initial errors if provided
+  React.useEffect(() => {
+    if (initialErrors) {
+      Object.entries(initialErrors).forEach(([key, message]) => {
+        form.setError(key as keyof ProfileSettingsData, {
+          type: "manual",
+          message: message as string,
+        });
+      });
+    }
+  }, [initialErrors, form]);
+
+  const handleSubmit = async (data: ProfileSettingsData) => {
     onSubmit?.(data);
-    console.log('Profile settings:', data);
+    console.log("Profile settings:", data);
   };
 
   return (
@@ -61,9 +70,7 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Profile Settings</CardTitle>
-          <CardDescription>
-            Manage your account settings and preferences
-          </CardDescription>
+          <CardDescription>Manage your account settings and preferences</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -72,12 +79,12 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                 <FormField
                   control={form.control}
                   name="name"
-                  rules={{ required: 'Name is required' }}
+                  rules={{ required: "Name is required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your name" {...field} />
+                        <Input placeholder="Your name" disabled={disabled} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -87,17 +94,17 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                   control={form.control}
                   name="email"
                   rules={{
-                    required: 'Email is required',
+                    required: "Email is required",
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address',
+                      message: "Invalid email address",
                     },
                   }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="your@email.com" {...field} />
+                        <Input type="email" placeholder="your@email.com" disabled={disabled} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -110,11 +117,9 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                     <FormItem>
                       <FormLabel>Bio</FormLabel>
                       <FormControl>
-                        <Input placeholder="Tell us about yourself" {...field} />
+                        <Input placeholder="Tell us about yourself" disabled={disabled} {...field} />
                       </FormControl>
-                      <FormDescription>
-                        A short description about yourself
-                      </FormDescription>
+                      <FormDescription>A short description about yourself</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -135,6 +140,7 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                           value={field.value}
                           onValueChange={field.onChange}
                           className="flex flex-col space-y-1"
+                          disabled={disabled}
                         >
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="light" id="light" />
@@ -150,9 +156,7 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                           </div>
                         </RadioGroup>
                       </FormControl>
-                      <FormDescription>
-                        Choose your preferred theme
-                      </FormDescription>
+                      <FormDescription>Choose your preferred theme</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -169,15 +173,10 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Notifications</FormLabel>
-                        <FormDescription>
-                          Receive notifications about your account activity
-                        </FormDescription>
+                        <FormDescription>Receive notifications about your account activity</FormDescription>
                       </div>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={disabled} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -189,15 +188,10 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Marketing Emails</FormLabel>
-                        <FormDescription>
-                          Receive emails about new products and features
-                        </FormDescription>
+                        <FormDescription>Receive emails about new products and features</FormDescription>
                       </div>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={disabled} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -205,10 +199,13 @@ export function ProfileSettings({ onSubmit }: ProfileSettingsProps) {
               </div>
 
               <CardFooter className="flex justify-end space-x-2 px-0">
-                <Button type="button" variant="outline" onClick={() => form.reset()}>
+                <Button type="button" variant="outline" onClick={() => form.reset()} disabled={disabled || isLoading}>
                   Reset
                 </Button>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled={disabled || isLoading}>
+                  {isLoading && <Spinner className="mr-2" />}
+                  {isLoading ? "Saving..." : "Save Changes"}
+                </Button>
               </CardFooter>
             </form>
           </Form>
