@@ -47,7 +47,7 @@ export function LandingPage({
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl">{heroDescription}</p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button size="lg" className="text-white! bg-black! hover:bg-gray/90!">
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
               Get Started
             </Button>
             <Button size="lg" variant="outline">
