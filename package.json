@@ -9,7 +9,8 @@
     "lint": "eslint",
     "sb": "storybook dev -p 6006",
     "sb:publish": "npx chromatic --project-token=chpt_96056bf19398104",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=chpt_96056bf19398104"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
